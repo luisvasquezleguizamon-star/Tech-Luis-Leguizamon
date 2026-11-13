@@ -1,40 +1,31 @@
-import { useEffect, useState } from 'react'
-import { apiUrl } from './api'
-
-type Estado =
-  | { tipo: 'cargando' }
-  | { tipo: 'ok'; mensaje: string }
-  | { tipo: 'error'; mensaje: string }
+import { AccountTree } from './features/accounts/components/AccountTree'
+import { useCatalogTree } from './features/accounts/useAccounts'
+import './features/accounts/accounts.css'
 
 function App() {
-  const [estado, setEstado] = useState<Estado>({ tipo: 'cargando' })
-
-  useEffect(() => {
-    fetch(apiUrl('/'))
-      .then((respuesta) => {
-        if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`)
-        return respuesta.text()
-      })
-      .then((mensaje) => setEstado({ tipo: 'ok', mensaje }))
-      .catch((error: Error) => setEstado({ tipo: 'error', mensaje: error.message }))
-  }, [])
+  const tree = useCatalogTree()
 
   return (
-    <main>
-      <h1>Arranque de la prueba técnica</h1>
-      <p>
-        Esta pantalla existe solo para comprobar que el frontend le llega a la API.
-        Bórrala y construye lo tuyo.
-      </p>
+    <main className="app">
+      <h1>Catálogo de cuentas</h1>
 
-      {estado.tipo === 'cargando' && <p>Consultando la API...</p>}
-      {estado.tipo === 'ok' && <p>La API respondió: {estado.mensaje}</p>}
-      {estado.tipo === 'error' && (
-        <p>
-          No se pudo hablar con la API ({estado.mensaje}). Revisa que esté
-          corriendo en {apiUrl('')}.
-        </p>
+      {tree.isPending && <p className="status">Cargando catálogo…</p>}
+
+      {tree.isError && (
+        <div className="alert" role="alert">
+          <p>{tree.error.message}</p>
+          <button type="button" onClick={() => tree.refetch()}>
+            Reintentar
+          </button>
+        </div>
       )}
+
+      {tree.isSuccess &&
+        (tree.data.length === 0 ? (
+          <p className="status">El catálogo está vacío.</p>
+        ) : (
+          <AccountTree nodes={tree.data} />
+        ))}
     </main>
   )
 }
