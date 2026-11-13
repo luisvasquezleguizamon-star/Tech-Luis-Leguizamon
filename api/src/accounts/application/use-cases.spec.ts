@@ -37,8 +37,8 @@ describe('Casos de uso de cuentas', () => {
         .rejects.toThrow(AccountAlreadyExistsError);
     });
 
-    it('rechaza si el padre no existe', async () => {
-      await expect(new CreateAccountUseCase(repo).execute({ code: '1199', name: 'X' }))
+        it('rechaza si el padre no existe', async () => {
+      await expect(new CreateAccountUseCase(repo).execute({ code: '1205', name: 'X' }))
         .rejects.toThrow(ParentAccountNotFoundError);
     });
   });
